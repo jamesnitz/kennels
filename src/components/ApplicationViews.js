@@ -9,64 +9,49 @@ import CustomerList from "./customers/CustomerList"
 import { EmployeeProvider } from "./employees/EmployeeProvider"
 import EmployeeList from "./employees/EmployeeList"
 import EmployeeForm from "./employees/EmployeeForm"
-import Login from "./auth/Login"
+import AnimalForm from "./animal/AnimalForm"
+import AnimalDetail from "./animal/AnimalDetail"
 
 export default () => {
   return (
     <>
       <LocationProvider>
         {/* Render the location list when http://localhost:3000/ */}
-        <Route exact path="/" render={
-            props => {
-              if (localStorage.getItem("kennel_customer") !== null) {
-                return <LocationList {...props} />
-              }
-              return <Login {...props} />
-            }
-          }>
+        <Route exact path="/" >
+          <LocationList />
         </Route>
       </LocationProvider>
 
       <AnimalProvider>
         <LocationProvider>
           <CustomerProvider>
-            <Route path="/animals" render={
-            props => {
-              if (localStorage.getItem("kennel_customer") !== null) {
-                return <AnimalList {...props} />
-              }
-              return <Login {...props} />
-            }
-          }>
-            </Route>
+            <Route exact path="/animals" render={
+              props => <AnimalList {...props} />
+            } />
+            <Route path="/animals/create" render={
+              props => <AnimalForm {...props} />}
+            />
+            <Route path="/animals/:animalId(\d+)" render={
+              props => <AnimalDetail {...props} />
+            } />
           </CustomerProvider>
         </LocationProvider>
       </AnimalProvider>
 
       <CustomerProvider>
         {/* Render the animal list when http://localhost:3000/animals */}
-        <Route path="/customers"  render={
-            props => {
-              if (localStorage.getItem("kennel_customer") !== null) {
-                return <CustomerList {...props} />
-              }
-              return <Login {...props} />
-            }
-          }>
+        <Route path="/customers">
+          <CustomerList />
         </Route>
       </CustomerProvider>
 
       <EmployeeProvider>
         <LocationProvider>
           <Route exact path="/employees" render={
-            props => {
-              if (localStorage.getItem("kennel_customer") !== null) { /* ...props =  match: {}, location: {}, history: {} */
-                return <EmployeeList {...props} />
-              }
-              return <Login {...props} />
-            }
+            props => <EmployeeList {...props} />
           } />
-          <Route exact path="/employees/create"
+
+          <Route path="/employees/create"
             render={props => <EmployeeForm {...props} />}
           />
         </LocationProvider>
