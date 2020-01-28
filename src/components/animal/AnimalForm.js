@@ -22,7 +22,7 @@ export default props => {
         locationId: locationId,
         breed:  animalBreed.current.value,
         customerId: customerId
-      })
+      }).then(props.history.push("/animals"))
     }
   }
 
@@ -92,7 +92,7 @@ export default props => {
           evt => {
             evt.preventDefault(); // Prevent browser from submitting the form
             constructNewAnimal();
-            props.history.push("/animals");
+
           }
         }
         className="btn btn-primary">

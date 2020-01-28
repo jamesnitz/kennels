@@ -16,7 +16,7 @@ export default props => {
       addEmployee({
         name: employeeName.current.value,
         locationId: locationId
-      })
+      }).then(props.history.push("/employees"))
     }
   }
 
@@ -57,7 +57,7 @@ export default props => {
           evt => {
             evt.preventDefault(); // Prevent browser from submitting the form
             constructNewEmployee();
-            props.history.push("/employees");
+
           }
         }
         className="btn btn-primary">
