@@ -3,7 +3,7 @@ import { LocationContext } from "./LocationProvider"
 import Location from "./Location"
 import "./Location.css"
 
-export default () => {
+export default (props) => {
   //const locations = useLocations is what we used to do
     const { locations } = useContext(LocationContext)
 

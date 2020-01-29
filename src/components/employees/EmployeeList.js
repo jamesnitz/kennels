@@ -19,9 +19,9 @@ export default (props) => {
         employees.map(employee => {
           const foundLocation = locations.find(l => l.id === employee.locationId)
 
-          return <Employee key={employee.id}
+          return <Employee {...props} key={employee.id}
             location={foundLocation}
-            employee={employee} />
+            employee={employee}  />
         })
       }
     </div>

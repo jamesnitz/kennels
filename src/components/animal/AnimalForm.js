@@ -1,103 +1,126 @@
-import React, { useContext, useRef } from "react"
-import { LocationContext } from "../location/LocationProvider"
+import React, { useContext, useState, useEffect } from "react"
 import { AnimalContext } from "./AnimalProvider"
-import { CustomerContext } from "../customers/CustomerProvider"
+import { LocationContext } from "../location/LocationProvider"
+
 
 export default props => {
-  const { addAnimals } = useContext(AnimalContext)
-  const { locations } = useContext(LocationContext)
-  const {customers} = useContext(CustomerContext)
-  const animalName = useRef("")
-  const animalBreed = useRef("")
-  const animalLocation = useRef(0)
-  const  customerName = useRef(0)
-  const constructNewAnimal = () => {
-    const locationId = parseInt(animalLocation.current.value)
-    const customerId = parseInt(customerName.current.value)
-    if (locationId === 0) {
-      window.alert("Please select a location")
-    } else {
-      addAnimals({
-        name: animalName.current.value,
-        locationId: locationId,
-        breed:  animalBreed.current.value,
-        customerId: customerId
-      }).then(props.history.push("/animals"))
+    const { locations } = useContext(LocationContext)
+    const { addAnimals, animals, updateAnimal } = useContext(AnimalContext)
+    const [animal, setAnimal] = useState({})
+
+    const editMode = props.match.params.hasOwnProperty("animalId")
+
+    const handleControlledInputChange = (event) => {
+        /*
+            When changing a state object or array, always create a new one
+            and change state instead of modifying current one
+        */
+        const newAnimal = Object.assign({}, animal)
+        newAnimal[event.target.name] = event.target.value
+        setAnimal(newAnimal)
     }
-  }
 
-  return (
-    <form className="animalForm">
-      <h2 className="animalForm__title">New Animal</h2>
-      <div className="form-group">
-        <label htmlFor="animalName">Animal name</label>
-        <input
-          type="text"
-          id="animalName"
-          ref={animalName}
-          required
-          autoFocus
-          className="form-control"
-          placeholder="Animal name"
-      />
-      </div>
-      <div className="form-group">
-        <label htmlFor="animalBreed">Breed</label>
-        <input
-          type="text"
-          id="animalBreed"
-          ref={animalBreed}
-          required
-          autoFocus
-          className="form-control"
-          placeholder="Animal breed"
-      />
-      </div>
-      <div className="form-group">
-        <label htmlFor="location">Assign to location</label>
-        <select
-          defaultValue=""
-          name="location"
-          ref={animalLocation}
-          id="animalLocation"
-          className="form-control"
-        >
-          <option value="0">Select a location</option>
-          {locations.map(e => (
-            <option key={e.id} value={e.id}>
-              {e.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="form-group">
-        <label htmlFor="customerName">owner</label>
-        <select
-          defaultValue=""
-          name="customerName"
-          ref={customerName}
-          id="customerName"
-          className="form-control"
-        >
-          <option value="0">Who own this dog?</option>
-          {customers.map(e => (
-            <option key={e.id} value={e.id}>
-              {e.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      <button type="submit"
-        onClick={
-          evt => {
-            evt.preventDefault(); // Prevent browser from submitting the form
-            constructNewAnimal();
-
-          }
+    const setDefaults = () => {
+        if (editMode) {
+            const animalId = parseInt(props.match.params.animalId)
+            const selectedAnimal = animals.find(a => a.id === animalId) || {}
+            setAnimal(selectedAnimal)
         }
-        className="btn btn-primary">
-        Save Animal
-      </button>
-    </form>
-  )
+    }
+
+    useEffect(() => {
+        setDefaults()
+    }, [animals])
+
+    const constructNewAnimal = () => {
+        const locationId = parseInt(animal.locationId)
+
+        if (locationId === 0) {
+            window.alert("Please select a location")
+        } else {
+            if (editMode) {
+                updateAnimal({
+                    id: animal.id,
+                    name: animal.name,
+                    breed: animal.breed,
+                    locationId: locationId,
+                    treatment: animal.treatment,
+                    customerId: parseInt(localStorage.getItem("kennel_customer"))
+                })
+                    .then(() => props.history.push("/animals"))
+            } else {
+                addAnimals({
+                    name: animal.name,
+                    breed: animal.breed,
+                    locationId: locationId,
+                    treatment: animal.treatment,
+                    customerId: parseInt(localStorage.getItem("kennel_customer"))
+                })
+                    .then(() => props.history.push("/animals"))
+            }
+        }
+    }
+
+    return (
+        <form className="animalForm">
+            <h2 className="animalForm__title">{editMode ? "Update Animal" : "Admit Animal"}</h2>
+            <fieldset>
+                <div className="form-group">
+                    <label htmlFor="name">Animal name: </label>
+                    <input type="text" name="name" required autoFocus className="form-control"
+                        proptype="varchar"
+                        placeholder="Animal name"
+                        defaultValue={animal.name}
+                        onChange={handleControlledInputChange}
+                    />
+                </div>
+            </fieldset>
+            <fieldset>
+                <div className="form-group">
+                    <label htmlFor="breed">Animal breed: </label>
+                    <input type="text" name="breed" required className="form-control"
+                        proptype="varchar"
+                        placeholder="Animal breed"
+                        defaultValue={animal.breed}
+                        onChange={handleControlledInputChange}
+                    />
+                </div>
+            </fieldset>
+            <fieldset>
+                <div className="form-group">
+                    <label htmlFor="locationId">Location: </label>
+                    <select name="locationId" className="form-control"
+                        proptype="int"
+                        value={animal.locationId}
+                        onChange={handleControlledInputChange}>
+
+                        <option value="0">Select a location</option>
+                        {locations.map(e => (
+                            <option key={e.id} value={e.id}>
+                                {e.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            </fieldset>
+            <fieldset>
+                <div className="form-group">
+                    <label htmlFor="treatment">Treatments: </label>
+                    <textarea type="text" name="treatment" className="form-control"
+                        proptype="varchar"
+                        value={animal.treatment}
+                        onChange={handleControlledInputChange}>
+                    </textarea>
+                </div>
+            </fieldset>
+            <button type="submit"
+                onClick={evt => {
+                    evt.preventDefault()
+                    constructNewAnimal()
+                }}
+                className="btn btn-primary">
+                {editMode ? "Save Updates" : "Make Reservation"}
+            </button>
+        </form>
+    )
 }

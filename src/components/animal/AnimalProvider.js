@@ -22,6 +22,17 @@ export const AnimalProvider = (props) => {
       .then(getAnimals)
   }
 
+  const updateAnimal = animal => {
+    return fetch(`http://localhost:8088/animals/${animal.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(animal)
+    })
+      .then(getAnimals)
+  }
+
   const releaseAnimal = animal => {
     return fetch(`http://localhost:8088/animals/${animal.id}`, {
       method: "DELETE",
@@ -42,7 +53,7 @@ export const AnimalProvider = (props) => {
 
   return (
     <AnimalContext.Provider value = {{
-      animals, addAnimals, releaseAnimal
+      animals, addAnimals, releaseAnimal, updateAnimal
     }}>
         {props.children}
     </AnimalContext.Provider>
