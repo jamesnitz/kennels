@@ -2,6 +2,7 @@ import React, { useContext } from "react"
 import { LocationContext } from "../location/LocationProvider"
 import { AnimalContext } from "../animal/AnimalProvider"
 import { EmployeeContext } from "../employees/EmployeeProvider"
+import { Link } from "react-router-dom"
 
 
 
@@ -23,20 +24,22 @@ export default (props) => {
     }
   })
   console.log(filteredAnimals)
-  
+
   return (
     <section>
-      <div>Location: {location.name}</div>
-  <div>Currently caring for: {
-    filteredAnimals.map(fa => {
-      return fa.name + " "
-    })
-    }</div>
-  <div>These people working here: {
-    filteredEmployees.map(fe => {
-      return fe.name + " "
-    })
-    }</div>
+      <h2>{location.name}</h2>
+      <div>Currently caring for: {
+        filteredAnimals.map(fa => {
+          return <Link to={`/animals/${fa.id}`}>
+            {fa.name}
+          </Link>
+        }).reduce((acc, x) => acc === null ? [x] : [acc, ', ', x], null)
+      }</div>
+      <div>These people working here: {
+        filteredEmployees.map(fe => {
+          return fe.name
+        }).reduce((acc, x) => acc === null ? [x] : [acc, ', ', x], null)
+      }</div>
     </section>
   )
 }
